@@ -1,5 +1,5 @@
 (ns aoc.2022.day-one
-  "AOC Day One"
+  "AOC Day One Part One"
   (:require 
     [clojure.string :as str]))
 (def inventories 
