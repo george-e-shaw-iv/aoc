@@ -1,4 +1,4 @@
-(ns aoc.2022.day-one
+(ns aoc.2022.day-one.part-two
   "AOC Day One Part Two"
   (:require 
     [clojure.string :as str]))
