@@ -2,61 +2,58 @@ use std::fs::read_to_string;
 
 const FILENAME: &str = "input.txt";
 
+fn string_to_number(s: &str) -> u32 {
+    match s {
+        "one" | "1" => 1,
+        "two" | "2" => 2,
+        "three" | "3" => 3,
+        "four" | "4" => 4,
+        "five" | "5" => 5,
+        "six" | "6" => 6,
+        "seven" | "7" => 7,
+        "eight" | "8" => 8,
+        "nine" | "9" => 9,
+        _ => 0,
+    }
+}
+
 fn main() {
     let file = read_to_string(FILENAME).expect("unable to read file");
     let mut answer: u32 = 0;
 
     for line in file.lines() {
-        let mut line = line.to_string();
-        // oneight // <- fine, should be 1, will be 1
-        // twone // <- not fine, should be 2, will be 1
-        // threeight // <- fine, should be 3, will be 3
-        // fiveight // <- fine, should be 5, will be 5
-        // sevenine // <- fine, should be 7, will be 7
-        // eightwo // <- not fine, will be 2, should be 8
-        // eighthree // <- not fine, will be 3, should be 8
-        // nineight // <- not fine, will be 8, should be 9
+        // idx_number is a vector of tuples that contain the index and the number (either the string or numeric
+        // representation, but both as type string) of each found number in the line.
+        let mut idx_number: Vec<(usize, &str)> = Vec::new();
 
-        if let Some(idx) = line.find("twone") {
-            line.replace_range(idx..idx + "two".len(), "2");
-        }
+        idx_number.append(&mut line.match_indices(char::is_numeric).collect());
+        idx_number.append(&mut line.match_indices("one").collect());
+        idx_number.append(&mut line.match_indices("two").collect());
+        idx_number.append(&mut line.match_indices("three").collect());
+        idx_number.append(&mut line.match_indices("four").collect());
+        idx_number.append(&mut line.match_indices("five").collect());
+        idx_number.append(&mut line.match_indices("six").collect());
+        idx_number.append(&mut line.match_indices("seven").collect());
+        idx_number.append(&mut line.match_indices("eight").collect());
+        idx_number.append(&mut line.match_indices("nine").collect());
 
-        if let Some(idx) = line.find("eightwo") {
-            line.replace_range(idx..idx + "eight".len(), "8");
-        }
+        // Sort these by index (first element in tuple) to put them in order of where each was found.
+        idx_number.sort_by(|a, b| a.0.cmp(&b.0));
 
-        if let Some(idx) = line.find("eighthree") {
-            line.replace_range(idx..idx + "eight".len(), "8");
-        }
-
-        if let Some(idx) = line.find("nineight") {
-            line.replace_range(idx..idx + "nine".len(), "9");
-        }
-
-        line = line
-            .replace("one", "1")
-            .replace("two", "2")
-            .replace("three", "3")
-            .replace("four", "4")
-            .replace("five", "5")
-            .replace("six", "6")
-            .replace("seven", "7")
-            .replace("eight", "8")
-            .replace("nine", "9");
-
-        let mut digits: Vec<u32> = line
-            .to_string()
-            .chars()
-            .flat_map(|ch| ch.to_digit(10))
-            .collect();
-        if digits.len() > 2 {
-            let _: Vec<u32> = digits.drain(1..digits.len() - 1).collect();
+        // Either drain the middle numbers or add a second number depending on the amount of numbers found in the
+        // the string.
+        if idx_number.len() > 2 {
+            let _: Vec<_> = idx_number.drain(1..idx_number.len() - 1).collect();
         } else {
-            digits.resize(2, digits[0]);
+            idx_number.resize(2, idx_number[0]);
         }
+
+        let digits: Vec<u32> = idx_number
+            .iter()
+            .map(|elem| string_to_number(elem.1))
+            .collect();
 
         let result: u32 = digits.iter().fold(0, |acc, elem| acc * 10 + elem);
-
         answer += result;
     }
 
